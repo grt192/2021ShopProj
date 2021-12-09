@@ -61,10 +61,10 @@ public class ClawSubsystem extends SubsystemBase {
     // Set motor powers
     if (closeClaw) {
       // Continue to power motors if claw is not closed yet
-      if (rightMotor.getSelectedSensorPosition() < closePosition) {
+      if (isMotorStalled(true)) {
         rightMotor.set(ControlMode.PercentOutput, -rightOpenPower);
       }
-      if (leftMotor.getSelectedSensorPosition() < closePosition) {
+      if (isMotorStalled(false)) {
         leftMotor.set(ControlMode.PercentOutput, -leftOpenPower);
       }
     } else {
