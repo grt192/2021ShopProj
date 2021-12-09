@@ -12,21 +12,23 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import static frc.robot.Constants.ClawConstants.*;
 
 public class ClawSubsystem extends SubsystemBase {
+
   private TalonSRX rightMotor;
   private TalonSRX leftMotor;
   private Solenoid pfft;
 
-  // Position variables for the motors
+  // Position variables for the motors (0 is open)
   private double rightPos;
   private double leftPos;
 
-  // Right and left motor powers -- state variables
-  private double rightMotorPower;
-  private double leftMotorPower;
+  // State variables for claw close/open and pneumatic on/off
+  public boolean liftClaw;
+  public boolean closeClaw;
 
-  // State variable for whether the pneumatic is lifted or not
-  private boolean liftClaw;
-
+  /**
+   * Initializes a ClawSubsystem. Assumes the claw is in a totally open position
+   * before construction.
+   */
   public ClawSubsystem() {
     CommandScheduler.getInstance().registerSubsystem(this);
 
@@ -48,7 +50,7 @@ public class ClawSubsystem extends SubsystemBase {
     leftPos = 0;
 
     liftClaw = false;
-
+    closeClaw = false;
   }
 
   @Override
@@ -57,43 +59,26 @@ public class ClawSubsystem extends SubsystemBase {
     System.out.println("left: " + leftMotor.getSelectedSensorPosition());
 
     // Set motor powers
-    rightMotor.set(ControlMode.PercentOutput, rightMotorPower);
-    leftMotor.set(ControlMode.PercentOutput, leftMotorPower);
+    if (closeClaw) {
+      // Continue to power motors if claw is not closed yet
+      if (rightMotor.getSelectedSensorPosition() < closePosition) {
+        rightMotor.set(ControlMode.PercentOutput, -rightOpenPower);
+      }
+      if (leftMotor.getSelectedSensorPosition() < closePosition) {
+        leftMotor.set(ControlMode.PercentOutput, -leftOpenPower);
+      }
+    } else {
+      // Continue to power motors if claw is not open yet
+      if (rightMotor.getSelectedSensorPosition() > 0) {
+        rightMotor.set(ControlMode.PercentOutput, rightOpenPower);
+      }
+      if (leftMotor.getSelectedSensorPosition() > 0) {
+        leftMotor.set(ControlMode.PercentOutput, leftOpenPower);
+      }
+    }
 
     // Set pneumatic
     pfft.set(liftClaw);
-  }
-
-  /**
-   * Set motor powers to open.
-   */
-  public void setOpenPowers() {
-    rightMotorPower = rightOpenPower;
-    leftMotorPower = leftOpenPower;
-  }
-
-  /**
-   * Set motor powers to close.
-   */
-  public void setClosePowers() {
-    rightMotorPower = -rightOpenPower;
-    leftMotorPower = -leftOpenPower;
-  }
-
-  /**
-   * Set motor powers to zero.
-   */
-  public void setNeutralPowers() {
-    rightMotorPower = 0;
-    leftMotorPower = 0;
-  }
-
-  public boolean getClawLift() {
-    return liftClaw;
-  }
-
-  public void setClawLift(boolean liftClaw) {
-    this.liftClaw = liftClaw;
   }
 
   /**

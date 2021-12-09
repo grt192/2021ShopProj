@@ -17,10 +17,7 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.claw.CloseClawCommand;
-import frc.robot.commands.claw.OpenClawCommand;
 import frc.robot.commands.tank.DriveTankCommand;
 import frc.robot.subsystems.claw.ClawSubsystem;
 import frc.robot.subsystems.tank.TankSubsystem;
@@ -108,25 +105,17 @@ public class RobotContainer {
 
     // Set up controller bindings for claw subsystem
 
-    // While "X" is pressed, open the claw
+    // While "X" is pressed, open or close the claw
     JoystickButton xButton = new JoystickButton(mechControlXbox, Button.kX.value);
-    xButton.whenPressed(new OpenClawCommand(clawSubsystem, xButton));
-
-    // When "B" is pressed, close the claw
-    JoystickButton bButton = new JoystickButton(mechControlXbox, Button.kB.value);
-    bButton.whenPressed(new CloseClawCommand(clawSubsystem));
+    xButton.whenPressed(() -> {
+      clawSubsystem.closeClaw = !clawSubsystem.closeClaw;
+    });
 
     // When "A" is pressed, lift/lower the pneumatic
     JoystickButton aButton = new JoystickButton(mechControlXbox, Button.kA.value);
     aButton.whenPressed(() -> {
-      clawSubsystem.setClawLift(!clawSubsystem.getClawLift());
+      clawSubsystem.liftClaw = !clawSubsystem.liftClaw;
     });
-
-    // When "Y" is pressed, close the claw then lift the pneumatic
-    JoystickButton yButton = new JoystickButton(mechControlXbox, Button.kY.value);
-    yButton.whenPressed(new SequentialCommandGroup(new CloseClawCommand(clawSubsystem), new RunCommand(() -> {
-      clawSubsystem.setClawLift(true);
-    })));
   }
 
   /**
