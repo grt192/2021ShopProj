@@ -19,8 +19,8 @@ public class ClawSubsystem extends SubsystemBase {
   private Solenoid pfft;
 
   // Position variables for the motors (0 is open)
-  private double rightPos;
-  private double leftPos;
+  private double prevRightPos;
+  private double prevLeftPos;
 
   // State variables for claw close/open and pneumatic on/off
   public boolean liftClaw;
@@ -49,8 +49,8 @@ public class ClawSubsystem extends SubsystemBase {
     leftMotor.setInverted(InvertType.InvertMotorOutput);
 
     // Set initial motor position vars (for checking if motors are stalled)
-    rightPos = 0;
-    leftPos = 0;
+    prevRightPos = 0;
+    prevLeftPos = 0;
 
     liftClaw = false;
     closeClaw = false;
@@ -60,10 +60,6 @@ public class ClawSubsystem extends SubsystemBase {
   public void periodic() {
     System.out.println("right: " + rightMotor.getSelectedSensorPosition());
     System.out.println("left: " + leftMotor.getSelectedSensorPosition());
-
-    // Update state vars
-    rightPos = rightMotor.getSelectedSensorPosition();
-    leftPos = leftMotor.getSelectedSensorPosition();
 
     // Set motor powers
     if (closeClaw) {
@@ -103,15 +99,27 @@ public class ClawSubsystem extends SubsystemBase {
    * @return true if stalled; false if moving
    */
   public boolean isMotorStalled(boolean right) {
+
+    boolean stalled;
+
     if (right) {
       double newRightPos = rightMotor.getSelectedSensorPosition();
 
       // If motors are barely changing position
-      return Math.abs(newRightPos - rightPos) <= stallDelta;
+      stalled = Math.abs(newRightPos - prevRightPos) <= stallDelta;
+
+      prevRightPos = newRightPos;
+
     } else {
       double newLeftPos = leftMotor.getSelectedSensorPosition();
-      return Math.abs(newLeftPos - leftPos) <= stallDelta;
+
+      // If motors are barely changing position
+      stalled = Math.abs(newLeftPos - prevLeftPos) <= stallDelta;
+
+      prevLeftPos = newLeftPos;
     }
+
+    return stalled;
   }
 
   /**
