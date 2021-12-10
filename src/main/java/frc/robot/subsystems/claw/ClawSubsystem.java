@@ -103,14 +103,15 @@ public class ClawSubsystem extends SubsystemBase {
    * @return true if stalled; false if moving
    */
   public boolean isMotorStalled(boolean right) {
-    double newRightPos = rightMotor.getSelectedSensorPosition();
-    double newLeftPos = leftMotor.getSelectedSensorPosition();
+    if (right) {
+      double newRightPos = rightMotor.getSelectedSensorPosition();
 
-    // If motors are barely changing position
-    boolean isRightStalled = Math.abs(newRightPos - rightPos) <= stallDelta;
-    boolean isLeftStalled = Math.abs(newLeftPos - leftPos) <= stallDelta;
-
-    return right ? isRightStalled : isLeftStalled;
+      // If motors are barely changing position
+      return Math.abs(newRightPos - rightPos) <= stallDelta;
+    } else {
+      double newLeftPos = leftMotor.getSelectedSensorPosition();
+      return Math.abs(newLeftPos - leftPos) <= stallDelta;
+    }
   }
 
   /**
