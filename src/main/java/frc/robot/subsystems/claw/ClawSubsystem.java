@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Solenoid;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.InvertType;
 
 import static frc.robot.Constants.ClawConstants.*;
 
@@ -45,6 +46,8 @@ public class ClawSubsystem extends SubsystemBase {
     leftMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
     leftMotor.setSelectedSensorPosition(0);
 
+    leftMotor.setInverted(InvertType.InvertMotorOutput);
+
     // Set initial motor position vars (for checking if motors are stalled)
     rightPos = 0;
     leftPos = 0;
@@ -58,22 +61,34 @@ public class ClawSubsystem extends SubsystemBase {
     System.out.println("right: " + rightMotor.getSelectedSensorPosition());
     System.out.println("left: " + leftMotor.getSelectedSensorPosition());
 
+    // Update state vars
+    rightPos = rightMotor.getSelectedSensorPosition();
+    leftPos = leftMotor.getSelectedSensorPosition();
+
     // Set motor powers
     if (closeClaw) {
       // Continue to power motors if claw is not closed yet
-      if (isMotorStalled(true)) {
+      if (!isMotorStalled(true)) {
         rightMotor.set(ControlMode.PercentOutput, -rightOpenPower);
+      } else {
+        rightMotor.set(ControlMode.PercentOutput, 0);
       }
-      if (isMotorStalled(false)) {
+      if (!isMotorStalled(false)) {
         leftMotor.set(ControlMode.PercentOutput, -leftOpenPower);
+      } else {
+        leftMotor.set(ControlMode.PercentOutput, 0);
       }
     } else {
       // Continue to power motors if claw is not open yet
       if (rightMotor.getSelectedSensorPosition() > 0) {
         rightMotor.set(ControlMode.PercentOutput, rightOpenPower);
+      } else {
+        rightMotor.set(ControlMode.PercentOutput, 0);
       }
       if (leftMotor.getSelectedSensorPosition() > 0) {
         leftMotor.set(ControlMode.PercentOutput, leftOpenPower);
+      } else {
+        leftMotor.set(ControlMode.PercentOutput, 0);
       }
     }
 
@@ -94,10 +109,6 @@ public class ClawSubsystem extends SubsystemBase {
     // If motors are barely changing position
     boolean isRightStalled = Math.abs(newRightPos - rightPos) <= stallDelta;
     boolean isLeftStalled = Math.abs(newLeftPos - leftPos) <= stallDelta;
-
-    // Save new motor positions
-    rightPos = newRightPos;
-    leftPos = newLeftPos;
 
     return right ? isRightStalled : isLeftStalled;
   }
