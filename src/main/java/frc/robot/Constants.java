@@ -39,6 +39,8 @@ public final class Constants {
         public static final double rightOpenPower = 0.5;
         public static final double leftOpenPower = -0.5;
 
-        public static final int stallDelta = 1;
+        public static final int stallDelta = 5;
+
+        public static final int closePosition = 15000;
     }
 }
