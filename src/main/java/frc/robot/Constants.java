@@ -41,6 +41,7 @@ public final class Constants {
 
         public static final int stallDelta = 5;
 
-        public static final int closePosition = 15000;
+        public static final int closePosition = 21000;
+        public static final int openPosition = 40000;
     }
 }

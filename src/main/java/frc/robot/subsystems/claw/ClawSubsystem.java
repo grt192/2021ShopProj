@@ -58,9 +58,10 @@ public class ClawSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    System.out.println("right: " + rightMotor.getSelectedSensorPosition());
+    System.out.println("left: " + leftMotor.getSelectedSensorPosition());
     // Set motor powers
     if (closeClaw) {
-      System.out.println("closing claw");
       // Continue to power motors if claw is not closed yet
       if (rightMotor.getSelectedSensorPosition() < closePosition) {
         rightMotor.set(ControlMode.PercentOutput, -rightOpenPower);
@@ -74,12 +75,12 @@ public class ClawSubsystem extends SubsystemBase {
       }
     } else {
       // Continue to power motors if claw is not open yet
-      if (rightMotor.getSelectedSensorPosition() > 0) {
+      if (rightMotor.getSelectedSensorPosition() > openPosition) {
         rightMotor.set(ControlMode.PercentOutput, rightOpenPower);
       } else {
         rightMotor.set(ControlMode.PercentOutput, 0);
       }
-      if (leftMotor.getSelectedSensorPosition() > 0) {
+      if (leftMotor.getSelectedSensorPosition() > openPosition) {
         leftMotor.set(ControlMode.PercentOutput, leftOpenPower);
       } else {
         leftMotor.set(ControlMode.PercentOutput, 0);
